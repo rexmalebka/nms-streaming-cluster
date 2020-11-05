@@ -1,0 +1,5 @@
+appName: "streaming-server"
+replicas: 3
+image: "rexmalebka/streaming-server"
+rtmp_port: 1935
+ffmpeg_path: "/usr/local/bin/ffmpeg"

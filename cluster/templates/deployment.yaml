@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-sec
+  labels:
+    app: {{ .Values.appName }}-sec
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-sec
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-sec
+    spec:
+      containers:
+        - name: {{ .Values.appName }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.rtmp_port }}
+          env:
+            - name: secondary
+              value: "1"
+            - name: primary_addr
+              value: {{ .Release.Name }}-inp-lb.default
+            - name: ffmpeg_dir
+              value: {{ .Values.ffmpeg_path }} 
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-prim
+  labels:
+    app: {{ .Values.appName }}-prim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-prim
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-prim
+    spec:
+      hostname: primary
+      containers:
+        - name: {{ .Values.appName }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - name: rtmp
+              containerPort: {{ .Values.rtmp_port }}
+              protocol: TCP
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-inp-lb 
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.appName }}-prim
+  ports:
+    - name: http
+      port: {{ .Values.rtmp_port }}
+      targetPort: {{ .Values.rtmp_port }}
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-out-lb 
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.appName }}-sec
+  ports:
+    - name: http
+      port: {{ .Values.rtmp_port }}
+      targetPort: {{ .Values.rtmp_port }}
