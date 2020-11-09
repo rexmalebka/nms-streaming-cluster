@@ -20,14 +20,16 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.rtmp_port }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
+            preStop:
+              exec:
+                command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
           env:
-            - name: secondary
-              value: "1"
-            - name: primary_addr
-              value: {{ .Release.Name }}-inp-lb.default
             - name: ffmpeg_dir
               value: {{ .Values.ffmpeg_path }} 
-
 ---
 
 apiVersion: apps/v1
@@ -55,6 +57,16 @@ spec:
             - name: rtmp
               containerPort: {{ .Values.rtmp_port }}
               protocol: TCP
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: primary
+              value: "1"
+            - name: primary_addr
+              value: {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
+            - name: ffmpeg_dir
+              value: {{ .Values.ffmpeg_path }} 
 ---
 
 kind: Service
@@ -66,9 +78,12 @@ spec:
   selector:
     app: {{ .Values.appName }}-prim
   ports:
-    - name: http
+    - name: rtmp
       port: {{ .Values.rtmp_port }}
       targetPort: {{ .Values.rtmp_port }}
+    - name: http
+      port: 80
+      targetPort: 80
 
 ---
 
