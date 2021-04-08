@@ -28,6 +28,8 @@ spec:
               exec:
                 command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
           env:
+            - name: primary_url
+              value: rtmp://{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
             - name: ffmpeg_dir
               value: {{ .Values.ffmpeg_path }} 
 ---
@@ -61,6 +63,8 @@ spec:
               containerPort: 80
               protocol: TCP
           env:
+            - name: relay_url
+              value: {{ .Values.relay_url }}
             - name: primary
               value: "1"
             - name: primary_addr

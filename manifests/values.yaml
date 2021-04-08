@@ -3,3 +3,5 @@ replicas: 3
 image: "rexmalebka/streaming-server"
 rtmp_port: 1935
 ffmpeg_path: "/usr/local/bin/ffmpeg"
+relay_url: "http://192.168.64.1:8080/acnhdushcdjvxvofwiad.gif"
+  

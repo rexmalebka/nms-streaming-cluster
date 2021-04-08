@@ -1,9 +1,18 @@
 # RTMP streaming helm chart
 
 Helm chart implementation of streaming server based on [Node Media Server](https://github.com/illuspas/Node-Media-Server)
-		
 
-## implementation
+## Docker image
+
+the [docker image](https://hub.docker.com/repository/docker/rexmalebka/streaming-server) I'm using has some implementations for primary-secondary sync along with somoe nms configuration, please check it and chnange it in case of specific usage
+
+to build it run:
+
+```bash
+docker build -f ./image/Dockerfile . --tag rexmalebka/streaming-server
+```
+
+## Helm implementation
 
 ```helm install -f cluster/values.yaml streaming-server cluster```
 
@@ -93,6 +102,12 @@ rtmp://<< streaming-server-out-lb url >>/live/STREAM_NAME
 For more options of accesing streaming, check [Node Media Server documentation](https://github.com/illuspas/Node-Media-Server#accessing-the-live-stream)
 
 ## The future
+
+- [ ] add configuration json options for  nms in ` values.yml` 
+- [ ] test [Horizontal Pod Scaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#:~:text=The%20Horizontal%20Pod%20Autoscaler%20automatically,other%20application%2Dprovided%20metrics) for improving secondary implementations
+- [ ] secure rtmp pushing
+- [ ] check tls certs
+- [ ] improve testing
 
 please feel free to add any issues / new features here.
 

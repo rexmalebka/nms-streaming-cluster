@@ -8,8 +8,7 @@ RUN curl https://deb.nodesource.com/setup_15.x > /tmp/setup.sh
 RUN sh /tmp/setup.sh
 RUN apt-get install -y nodejs
 
-COPY app/package*.json ./
-COPY app/server.js ./
+COPY ./app/* .
 RUN npm install
 EXPOSE 1935
 ENTRYPOINT [""]

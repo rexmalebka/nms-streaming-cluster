@@ -44,7 +44,7 @@ const requestListener = (req, res) => {
 	
 	nms.stop()
 
-	config.relay.tasks = Array.from(secondaries).map( sec => {
+	config.relay.tasks =  Array.from(secondaries).map( sec => {
 		return {
 			app: 'live',
 		        mode: 'push',
@@ -52,10 +52,28 @@ const requestListener = (req, res) => {
 		}
 	})
 
+	if(process.env.hasOwnProperty('relay_url')){
+		const relay_url = process.env['relay_url']
+		config.relay.tasks.push({
+			app: 'live',
+			mode: 'static',
+			edge: relay_url,
+			name: 'relay'
+		})
+	}
 	nms.run()
 }
 
+config.relay.tasks = [
+	{
+		app: 'live',
+		mode: 'pull',
+		edge:  process.env['primary_url']
+	}
+]
+
 if(process.env.hasOwnProperty('primary')){
+		
 	const server = http.createServer(requestListener);
 
 	server.listen(port, host, () => {
@@ -63,14 +81,12 @@ if(process.env.hasOwnProperty('primary')){
 	});
 	
 }
-//else{
-	nms.on('preConnect', (id, args) => {
-		console.log('[NodeEvent on preConnect]', `id=${id} args=${JSON.stringify(args)}`);
-		let session = nms.getSession(id);
-		console.debug(session.ip)
-		// session.reject();
-	});
 
-//}
+nms.on('preConnect', (id, args) => {
+	console.log('[NodeEvent on preConnect]', `id=${id} args=${JSON.stringify(args)}`);
+	let session = nms.getSession(id);
+	console.debug(session.ip)
+	// session.reject();
+});
 
 nms.run()
