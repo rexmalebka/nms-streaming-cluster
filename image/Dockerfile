@@ -8,10 +8,15 @@ RUN curl https://deb.nodesource.com/setup_15.x > /tmp/setup.sh
 RUN sh /tmp/setup.sh
 RUN apt-get install -y nodejs
 
-COPY ./app/* .
+COPY ./app/tsconfig.json .
+COPY ./app/package*.json .
+COPY ./app/src src
 RUN npm install
+RUN ls
+RUN npm run build
+
 EXPOSE 1935
 ENTRYPOINT [""]
 #CMD ["node", "server.js"]
-CMD ["node","server.js"]
+CMD ["npm","run","start"]
 

@@ -20,18 +20,23 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.rtmp_port }}
-          lifecycle:
-            postStart:
-              exec:
-                command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
-            preStop:
-              exec:
-                command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
+              #          lifecycle:
+              #postStart:
+              #exec:
+              #  command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
+              # preStop:
+              #exec:
+              #  command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
           env:
             - name: primary_url
               value: rtmp://{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
             - name: ffmpeg_dir
-              value: {{ .Values.ffmpeg_path }} 
+              value: {{ .Values.ffmpeg_path }}
+          resources:
+            requests:
+              memory: "100Mi"
+            limits:
+              memory: "200Mi"
 ---
 
 apiVersion: apps/v1
@@ -103,3 +108,23 @@ spec:
     - name: http
       port: {{ .Values.rtmp_port }}
       targetPort: {{ .Values.rtmp_port }}
+
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Release.Name }}-prim-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-sec
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 60
