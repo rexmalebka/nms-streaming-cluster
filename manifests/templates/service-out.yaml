@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-out-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.appName }}-sec
+  ports:
+    - name: http
+      port: {{ .Values.rtmp_port }}
+      targetPort: {{ .Values.rtmp_port }}
