@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-prim
+  labels:
+    app: {{ .Values.appName }}-prim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-prim
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-prim
+    spec:
+      hostname: primary
+      containers:
+        - name: {{ .Values.appName }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - name: rtmp
+              containerPort: {{ .Values.rtmp_port }}
+              protocol: TCP
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            {{ if .Values.relay_url }}
+            - name: relay_url
+              value: {{ .Values.relay_url }}
+            {{ end }}
+            - name: primary
+              value: "1"
+            - name: primary_addr
+              value: {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
+            - name: ffmpeg_dir
+              value: {{ .Values.ffmpeg_path }}

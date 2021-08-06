@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-sec
+  labels:
+    app: {{ .Values.appName }}-sec
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-sec
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-sec
+    spec:
+      containers:
+        - name: {{ .Values.appName }}
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.rtmp_port }}
+              #          lifecycle:
+              #postStart:
+              #exec:
+              #  command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
+              # preStop:
+              #exec:
+              #  command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
+          env:
+            - name: primary_url
+              value: rtmp://{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
+            - name: ffmpeg_dir
+              value: {{ .Values.ffmpeg_path }}
+          resources:
+            requests:
+              memory: "200Mi"
+            limits:
+              memory: "400Mi"
