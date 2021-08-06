@@ -16,7 +16,6 @@ RUN ls
 RUN npm run build
 
 EXPOSE 1935
-ENTRYPOINT [""]
 #CMD ["node", "server.js"]
-CMD ["npm","run","start"]
-
+ENTRYPOINT ["/usr/bin/env"]
+CMD ["npm","run", "start"]
