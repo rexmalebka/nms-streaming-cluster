@@ -4,4 +4,7 @@ image: "rexmalebka/streaming-server"
 rtmp_port: 1935
 ffmpeg_path: "/usr/local/bin/ffmpeg"
 #relay_url: ""
-  
+push:
+  - server: "rtmp://a.rtmp.youtube.com/live2"
+    key: "5eyf-70fa-bf9u-80rf-e0cm"
+    appendName: false

@@ -1,39 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-sec
+  name: {{ .Release.Name }}-prim
   labels:
-    app: {{ .Values.appName }}-sec
+    app: {{ .Values.appName }}-prim
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.appName }}-sec
+      app: {{ .Values.appName }}-prim
   template:
     metadata:
       labels:
-        app: {{ .Values.appName }}-sec
+        app: {{ .Values.appName }}-prim
     spec:
+      hostname: primary
       containers:
         - name: {{ .Values.appName }}
           image: {{ .Values.image }}
           imagePullPolicy: Always
           ports:
-            - containerPort: {{ .Values.rtmp_port }}
-              #          lifecycle:
-              #postStart:
-              #exec:
-              #  command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
-              # preStop:
-              #exec:
-              #  command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
+            - name: rtmp
+              containerPort: {{ .Values.rtmp_port }}
+              protocol: TCP
+            - name: http
+              containerPort: 80
+              protocol: TCP
           env:
-            - name: primary_url
-              value: rtmp://{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
+            {{ if .Values.relay_url }}
+            - name: relay_url
+              value: {{ .Values.relay_url }}
+            {{ end }}
+            - name: primary
+              value: "1"
+            - name: primary_addr
+              value: {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
             - name: ffmpeg_dir
               value: {{ .Values.ffmpeg_path }}
-          resources:
-            requests:
-              memory: "200Mi"
-            limits:
-              memory: "400Mi"
+            - name: push
+              value: '[{{- range $k,$v := .Values.push }}{"server":"{{ $v.server }}","key":"{{ $v.key }}","appendName":{{ $v.appendName }}}{{ if  (lt $k  (sub (len $.Values.push ) 1)) }},{{ end }}{{- end }}]'
+                
