@@ -108,6 +108,8 @@ For more options of accesing streaming, check [Node Media Server documentation](
 - [ ] secure rtmp pushing
 - [ ] check tls certs
 - [ ] improve testing
+- [ ] save recording option
+- [ ] push to other rtmp 
 
 please feel free to add any issues / new features here.
 
