@@ -1,39 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-prim
+  name: {{ .Release.Name }}-sec
   labels:
-    app: {{ .Values.appName }}-prim
+    app: {{ .Values.appName }}-sec
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.appName }}-prim
+      app: {{ .Values.appName }}-sec
   template:
     metadata:
       labels:
-        app: {{ .Values.appName }}-prim
+        app: {{ .Values.appName }}-sec
     spec:
-      hostname: primary
       containers:
         - name: {{ .Values.appName }}
           image: {{ .Values.image }}
           imagePullPolicy: Always
           ports:
-            - name: rtmp
-              containerPort: {{ .Values.rtmp_port }}
-              protocol: TCP
-            - name: http
-              containerPort: 80
-              protocol: TCP
+            - containerPort: {{ .Values.rtmp_port }}
+              #          lifecycle:
+              #postStart:
+              #exec:
+              #  command: ['/usr/bin/curl', {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/join]
+              # preStop:
+              #exec:
+              #  command: ['/usr/bin/curl',{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}/leave]
           env:
-            {{ if .Values.relay_url }}
-            - name: relay_url
-              value: {{ .Values.relay_url }}
-            {{ end }}
-            - name: primary
-              value: "1"
-            - name: primary_addr
-              value: {{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
+            - name: primary_url
+              value: rtmp://{{ .Release.Name }}-inp-lb.{{ .Release.Namespace }}
             - name: ffmpeg_dir
               value: {{ .Values.ffmpeg_path }}
+          resources:
+            requests:
+              memory: "200Mi"
+            limits:
+              memory: "400Mi"

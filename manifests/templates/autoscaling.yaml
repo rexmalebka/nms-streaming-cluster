@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta2 
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Release.Name }}-prim-hpa
@@ -15,4 +15,4 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 60
+        averageValue: 60

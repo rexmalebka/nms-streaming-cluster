@@ -23,6 +23,23 @@ if(process.env.hasOwnProperty('primary')){
 			name: 'relay'
 		})
 	}
+	if(process.env.hasOwnProperty('push')){
+		const plain_push_urls:string = process.env.hasOwnProperty('push') ?  ''+process.env['push'] : "";
+		try{
+			const push_urls:any = JSON.parse(plain_push_urls)
+			tasks.push(...push_urls.map( push => {
+				return {
+					app: 'live',
+					mode: 'push',
+					edge: `${push.server.replace(/\/$/, '')}/${push.key}`,
+					appendName: push.hasOwnProperty('appendName') ? push.appendName : true
+				}
+			}))
+
+		}catch{
+
+		}
+	}
 }else{
 	const primary_url:string = process.env.hasOwnProperty('primary_url') ? ''+process.env['primary_url'] : ''
 	tasks.push({
@@ -47,6 +64,8 @@ const config = {
           tasks: tasks
         }
 };
+
+console.debug(JSON.stringify(config))
 const nms = new NodeMediaServer(config)
 
 nms.on('preConnect', (id, args) => {
