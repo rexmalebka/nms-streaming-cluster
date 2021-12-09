@@ -13,6 +13,22 @@ interface task  {
 
 let tasks: task[ ] = []
 
+const config = {
+        logType: 3,
+
+        rtmp: {
+                port: 1935,
+                chunk_size: 60000,
+                gop_cache: true,
+                ping: 30,
+                ping_timeout: 60
+        },
+        relay: {
+          ffmpeg: `${process.env.ffmpeg_dir}`,
+          tasks: tasks
+        }
+};
+
 if(process.env.hasOwnProperty('primary')){
 	if(process.env.hasOwnProperty('relay_url')){
 		const relay_url:string = process.env.hasOwnProperty('relay_url') ?  ''+process.env['relay_url'] : "";
@@ -47,23 +63,12 @@ if(process.env.hasOwnProperty('primary')){
 		  mode: 'pull',
 		  edge: primary_url
 	})
+	config['http'] = {
+		port: 80,
+		allow_origin: '*'
+	}
 }
 
-const config = {
-        logType: 3,
-
-        rtmp: {
-                port: 1935,
-                chunk_size: 60000,
-                gop_cache: true,
-                ping: 30,
-                ping_timeout: 60
-        },
-        relay: {
-          ffmpeg: `${process.env.ffmpeg_dir}`,
-          tasks: tasks
-        }
-};
 
 console.debug(JSON.stringify(config))
 const nms = new NodeMediaServer(config)

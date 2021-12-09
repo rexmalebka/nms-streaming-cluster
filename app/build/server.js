@@ -8,6 +8,20 @@ const port = 80;
 const host = "0.0.0.0";
 console.debug(node_media_server_1.default);
 let tasks = [];
+const config = {
+    logType: 3,
+    rtmp: {
+        port: 1935,
+        chunk_size: 60000,
+        gop_cache: true,
+        ping: 30,
+        ping_timeout: 60
+    },
+    relay: {
+        ffmpeg: `${process.env.ffmpeg_dir}`,
+        tasks: tasks
+    }
+};
 if (process.env.hasOwnProperty('primary')) {
     if (process.env.hasOwnProperty('relay_url')) {
         const relay_url = process.env.hasOwnProperty('relay_url') ? '' + process.env['relay_url'] : "";
@@ -26,7 +40,8 @@ if (process.env.hasOwnProperty('primary')) {
                 return {
                     app: 'live',
                     mode: 'push',
-                    edge: `${push.server.replace(/\/$/, '')}/${push.key}`
+                    edge: `${push.server.replace(/\/$/, '')}/${push.key}`,
+                    appendName: push.hasOwnProperty('appendName') ? push.appendName : true
                 };
             }));
         }
@@ -41,22 +56,12 @@ else {
         mode: 'pull',
         edge: primary_url
     });
+    config['http'] = {
+        port: 80,
+        allow_origin: '*'
+    };
 }
-const config = {
-    logType: 3,
-    rtmp: {
-        port: 1935,
-        chunk_size: 60000,
-        gop_cache: true,
-        ping: 30,
-        ping_timeout: 60
-    },
-    relay: {
-        ffmpeg: `${process.env.ffmpeg_dir}`,
-        tasks: tasks
-    }
-};
-console.debug(config);
+console.debug(JSON.stringify(config));
 const nms = new node_media_server_1.default(config);
 nms.on('preConnect', (id, args) => {
     console.log('[NodeEvent on preConnect]', `id=${id} args=${JSON.stringify(args)}`);
