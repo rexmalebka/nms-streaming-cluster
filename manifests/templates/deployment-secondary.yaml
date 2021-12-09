@@ -19,7 +19,11 @@ spec:
           image: {{ .Values.image }}
           imagePullPolicy: Always
           ports:
-            - containerPort: {{ .Values.rtmp_port }}
+            - name: rtmp
+              containerPort: {{ .Values.rtmp_port }}
+            - name: http
+              containerPort: 80
+              protocol: TCP
               #          lifecycle:
               #postStart:
               #exec:

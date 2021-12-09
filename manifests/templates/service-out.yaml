@@ -7,6 +7,9 @@ spec:
   selector:
     app: {{ .Values.appName }}-sec
   ports:
-    - name: http
+    - name: rtmp
       port: {{ .Values.rtmp_port }}
       targetPort: {{ .Values.rtmp_port }}
+    - name: http
+      port: 80
+      targetPort: 80
